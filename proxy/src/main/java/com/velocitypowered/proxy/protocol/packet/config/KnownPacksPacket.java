@@ -23,6 +23,10 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * The {@code KnownPacksPacket} class represents a packet that handles the synchronization
@@ -39,6 +43,14 @@ public class KnownPacksPacket implements MinecraftPacket {
       new QuietDecoderException("too many known packs");
 
   private KnownPack[] packs;
+
+  public KnownPacksPacket() {
+    packs = new KnownPack[0];
+  }
+
+  public KnownPacksPacket(KnownPack[] packs) {
+    this.packs = packs;
+  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
@@ -80,8 +92,8 @@ public class KnownPacksPacket implements MinecraftPacket {
    * for managing or synchronizing resource packs between the client and server.</p>
    *
    * @param namespace the namespace of the resource pack (e.g., "minecraft" or a mod name)
-   * @param id the unique identifier of the resource pack within the namespace
-   * @param version the version of the resource pack
+   * @param id        the unique identifier of the resource pack within the namespace
+   * @param version   the version of the resource pack
    */
   public record KnownPack(String namespace, String id, String version) {
     private static KnownPack read(ByteBuf buf) {
@@ -93,5 +105,28 @@ public class KnownPacksPacket implements MinecraftPacket {
       ProtocolUtils.writeString(buf, id);
       ProtocolUtils.writeString(buf, version);
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) return false;
+      KnownPack knownPack = (KnownPack) o;
+      return Objects.equals(id, knownPack.id) && Objects.equals(version, knownPack.version) && Objects.equals(namespace, knownPack.namespace);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(namespace, id, version);
+    }
+
+    @Override
+    @NotNull
+    public String toString() {
+      return "KnownPack{" +
+          "namespace='" + namespace + '\'' +
+          ", id='" + id + '\'' +
+          ", version='" + version + '\'' +
+          '}';
+    }
   }
 }
+
