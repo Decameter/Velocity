@@ -25,17 +25,8 @@ import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * The {@code KnownPacksPacket} class represents a packet that handles the synchronization
- * of known resource packs between the client and server in the Minecraft protocol.
- *
- * <p>This packet contains a list of {@link KnownPack} instances, each representing a resource
- * pack with a namespace, identifier, and version. It allows the server to inform the client
- * about available resource packs.</p>
- */
 public class KnownPacksPacket implements MinecraftPacket {
 
   private static final int MAX_LENGTH_PACKS = Integer.getInteger("velocity.max-known-packs", 64);
@@ -45,7 +36,7 @@ public class KnownPacksPacket implements MinecraftPacket {
   private KnownPack[] packs;
 
   public KnownPacksPacket() {
-    packs = new KnownPack[0];
+    this.packs = new KnownPack[0];
   }
 
   public KnownPacksPacket(KnownPack[] packs) {
@@ -92,12 +83,16 @@ public class KnownPacksPacket implements MinecraftPacket {
    * for managing or synchronizing resource packs between the client and server.</p>
    *
    * @param namespace the namespace of the resource pack (e.g., "minecraft" or a mod name)
-   * @param id        the unique identifier of the resource pack within the namespace
-   * @param version   the version of the resource pack
+   * @param id the unique identifier of the resource pack within the namespace
+   * @param version the version of the resource pack
    */
   public record KnownPack(String namespace, String id, String version) {
     private static KnownPack read(ByteBuf buf) {
-      return new KnownPack(ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
+      return new KnownPack(
+          ProtocolUtils.readString(buf),
+          ProtocolUtils.readString(buf),
+          ProtocolUtils.readString(buf)
+      );
     }
 
     private void write(ByteBuf buf) {
@@ -108,9 +103,13 @@ public class KnownPacksPacket implements MinecraftPacket {
 
     @Override
     public boolean equals(Object o) {
-      if (o == null || getClass() != o.getClass()) return false;
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       KnownPack knownPack = (KnownPack) o;
-      return Objects.equals(id, knownPack.id) && Objects.equals(version, knownPack.version) && Objects.equals(namespace, knownPack.namespace);
+      return Objects.equals(namespace, knownPack.namespace)
+          && Objects.equals(id, knownPack.id)
+          && Objects.equals(version, knownPack.version);
     }
 
     @Override
@@ -121,12 +120,11 @@ public class KnownPacksPacket implements MinecraftPacket {
     @Override
     @NotNull
     public String toString() {
-      return "KnownPack{" +
-          "namespace='" + namespace + '\'' +
-          ", id='" + id + '\'' +
-          ", version='" + version + '\'' +
-          '}';
+      return "KnownPack{"
+          + "namespace='" + namespace + '\''
+          + ", id='" + id + '\''
+          + ", version='" + version + '\''
+          + '}';
     }
   }
 }
-
